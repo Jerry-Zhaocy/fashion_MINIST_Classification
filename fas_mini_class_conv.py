@@ -21,14 +21,17 @@ train_images, test_images = train_images / 255.0, test_images / 255.0
 # 创建模型
 model = models.Sequential()
 # 添加一个卷基层，卷积核大小为3x3,卷积核深度为32,激活函数为relu，输入数据大小为28x28x1
-model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
+model.add(layers.Conv2D(32, (3, 3), padding='same', activation='relu', input_shape=(28, 28, 1)))
 # 添加一个2x2的池化层
 model.add(layers.MaxPooling2D((2, 2)))
+# model.add(layers.Conv2D(64, (3, 3), kernel_regularizer=keras.regularizers.l2(0.001), activation='relu'))
 model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-# model.add(layers.MaxPooling2D((2, 2)))
-# model.add(layers.Conv2D(256, (3, 3), activation='relu'))
+model.add(layers.Conv2D(128, (3, 3), padding='same', activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+# model.add(layers.Conv2D(256, (2, 2), kernel_regularizer=keras.regularizers.l2(0.01), activation='relu'))
+model.add(layers.Conv2D(256, (2, 2), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
 
 # 显示模型现在的结构
 model.summary()
@@ -36,11 +39,11 @@ model.summary()
 # 将最后一层卷基层拉伸成一个向量
 model.add(layers.Flatten())
 # 添加一个全连接层，正则化项为L2正则大小为0.001，激活函数为relu
-model.add(layers.Dense(128,kernel_regularizer=keras.regularizers.l2(0.001), activation='relu'))
+model.add(layers.Dense(128, kernel_regularizer=keras.regularizers.l2(0.001), activation='relu'))
 # 添加20%的Dropout
-model.add(layers.Dropout(0.2))
+model.add(layers.Dropout(0.3))
 model.add(layers.Dense(64, kernel_regularizer=keras.regularizers.l2(0.001), activation='relu'))
-model.add(layers.Dropout(0.2))
+model.add(layers.Dropout(0.3))
 # 最后用softmax输出10个类别
 model.add(layers.Dense(10, activation='softmax'))
 
@@ -53,7 +56,7 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 # 训练模型,进行10次迭代，batch_size=32
-history = model.fit(train_images, train_labels, epochs=10, batch_size=32,
+history = model.fit(train_images, train_labels, epochs=10, batch_size=128,
                     validation_data=(test_images, test_labels))
 # history = model.fit(train_images, train_labels, epochs=10)
 
